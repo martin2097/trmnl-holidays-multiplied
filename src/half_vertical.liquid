@@ -1,11 +1,11 @@
 <div data-pto-view="half_vertical" class="layout layout--col layout--top gap--small px--2 pt--1 pb--2">
 {% if status == 'error' %}{% render "pto_error", hero: hero %}{% else %}
-  <div class="w--full grow lg:hidden">{% render "pto_hero", hero: hero, profile: "column", show_calendar: true, compact_calendar: true, scope: "half_vertical-1" %}</div>
+  <div class="w--full grow lg:hidden">{% render "pto_hero", hero: hero, profile: "column", show_calendar: true, compact_calendar: true, calendar_inset: true, scope: "half_vertical-1" %}</div>
   <div class="w--full md:hidden lg:block grow">{% assign pto_side_countdown = false %}{% if hero.timeline.size > 5 or hero.status == 'weekend' or hero.name.size > 28 or world.headline.size > 75 or world.name.size > 25 %}{% assign pto_side_countdown = true %}{% endif %}{% render "pto_hero", hero: hero, profile: "column", side_countdown: pto_side_countdown, portrait_stack: true, show_calendar: true, compact_calendar: true, scope: "half_vertical-2" %}</div>
   <div class="md:hidden lg:flex no-shrink w--full">{% render "pto_tickets", tickets: tickets, profile: "column", status: status , scope: "half_vertical-3" %}</div>
-  <div class="lg:hidden w--full no-shrink">{% if hero.timeline.size <= 5 and hero.name.size <= 55 %}{% render "pto_world", world: world, stacked: true, compact: true %}{% endif %}</div>
+  <div class="lg:hidden w--full no-shrink">{% if hero.timeline.size <= 5 and hero.name.size <= 55 %}{% render "pto_world", world: world, stacked: true, compact: true, identity_only: true %}{% endif %}</div>
   <div class="md:hidden lg:block lg:portrait:hidden w--full no-shrink">{% render "pto_world", world: world, compact: true, tight: true %}</div>
-  <div class="md:hidden lg:portrait:block w--full no-shrink">{% render "pto_world", world: world, stacked: true, compact: true %}</div>
+  <div class="md:hidden lg:portrait:block w--full no-shrink">{% render "pto_world", world: world, stacked: true, compact: true, identity_only: true %}</div>
 {% endif %}
 </div>
 {% render "pto_footer", calendar: calendar, status: status, short: true %}

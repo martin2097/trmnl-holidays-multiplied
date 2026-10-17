@@ -4,9 +4,9 @@
 {% if hero.timeline.size > 5 or hero.name.size > 55 %}{% assign pto_show_calendar = false %}{% endif %}
 <div data-pto-view="quadrant" class="layout layout--col layout--top gap--small px--2 py--1">
 {% if status == 'error' %}{% render "pto_error", hero: hero %}{% else %}
-  <div class="grow w--full">{% render "pto_hero", hero: hero, profile: "quadrant", world_long_name: pto_world_long_name, side_countdown: true, portrait_stack: pto_portrait_stack, show_calendar: true, small_calendar: pto_show_calendar, compact_calendar: true , scope: "quadrant-1" %}</div>
+  <div class="grow w--full">{% render "pto_hero", hero: hero, profile: "quadrant", world_long_name: pto_world_long_name, side_countdown: true, portrait_stack: pto_portrait_stack, show_calendar: true, small_calendar: pto_show_calendar, compact_calendar: true, calendar_inset: true, scope: "quadrant-1" %}</div>
   <div class="md:hidden {% if hero.timeline.size > 5 or hero.name.size > 55 or world.headline.size > 110 %}lg:hidden{% else %}lg:block{% endif %} lg:portrait:hidden w--full no-shrink">{% render "pto_world", world: world, compact: true %}</div>
-  <div class="md:hidden lg:portrait:block w--full no-shrink">{% render "pto_world", world: world, stacked: true, compact: true %}</div>
+  <div class="md:hidden lg:portrait:block w--full no-shrink">{% render "pto_world", world: world, stacked: true, compact: true, identity_only: true %}</div>
 {% endif %}
 </div>
 {% render "pto_footer", calendar: calendar, status: status, short: true %}

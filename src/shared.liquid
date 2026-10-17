@@ -81,24 +81,24 @@
     {% if portrait_stack %}<div class="md:hidden lg:portrait:flex flex--col flex--left gap--small w--full no-shrink">{% render "pto_identity", hero: hero, profile: profile %}{% render "pto_countdown", hero: hero, profile: profile %}</div>{% endif %}
     {% else %}<div class="flex flex--col flex--left gap--xsmall w--full no-shrink">{% render "pto_identity", hero: hero, profile: profile %}{% render "pto_countdown", hero: hero, profile: profile %}</div>{% endif %}
     {% render "pto_action", hero: hero, profile: profile %}
-    {% if show_calendar %}<div class="{% if profile == 'quadrant' and small_calendar == false %}md:hidden lg:flex{% else %}flex{% endif %} flex--center w--full no-shrink"><div class="{% if profile == 'full' or profile == 'full_portrait' %}w--full{% elsif profile == 'quadrant' %}{% if hero.timeline.size > 5 %}w--72 lg:w--80 lg:portrait:w--72{% else %}{% if hero.observed_label != blank %}w--64{% else %}w--72{% endif %} {% if hero.observed_label != blank or world_long_name %}lg:w--80{% else %}lg:w--96{% endif %} lg:portrait:w--full{% endif %}{% elsif profile == 'column' %}{% if hero.timeline.size > 5 %}w--72 lg:w--64 lg:portrait:w--72{% else %}w--full lg:w--96 lg:portrait:w--full{% endif %}{% else %}{% if hero.timeline.size > 5 %}w--64 lg:portrait:w--72{% else %}w--full{% endif %}{% endif %} w--max-full">{% if profile == 'banner' %}<div class="lg:portrait:hidden">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}</div>{% assign portrait_scope = scope | append: '-portrait' %}<div class="md:hidden lg:portrait:block">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: "banner_portrait", scope: portrait_scope %}</div>{% else %}{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}{% endif %}</div></div>{% endif %}
+    {% if show_calendar %}<div class="{% if profile == 'quadrant' and small_calendar == false %}md:hidden lg:flex{% else %}flex{% endif %} flex--center w--full no-shrink {% if calendar_inset %}p--1 lg:p--0{% endif %}"><div class="{% if profile == 'full' or profile == 'full_portrait' %}w--full{% elsif profile == 'quadrant' %}{% if hero.timeline.size > 5 %}w--72 lg:w--80 lg:portrait:w--72{% else %}{% if hero.observed_label != blank %}w--64{% else %}w--72{% endif %} {% if hero.observed_label != blank or world_long_name %}lg:w--80{% else %}lg:w--96{% endif %} lg:portrait:w--full{% endif %}{% elsif profile == 'column' %}{% if hero.timeline.size > 5 %}w--72 lg:w--64 lg:portrait:w--72{% else %}w--full lg:w--96 lg:portrait:w--full{% endif %}{% else %}{% if hero.timeline.size > 5 %}w--64 lg:portrait:w--72{% else %}w--full{% endif %}{% endif %} w--max-full">{% if profile == 'banner' %}<div class="lg:portrait:hidden">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}</div>{% assign portrait_scope = scope | append: '-portrait' %}<div class="md:hidden lg:portrait:block">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: "banner_portrait", scope: portrait_scope %}</div>{% else %}{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}{% endif %}</div></div>{% endif %}
   </div>
 {% endtemplate %}
 {% template pto_world %}
   {% if world.name != blank %}
   <div class="{% if stacked %}flex flex--col gap--xsmall{% else %}grid grid--cols-12 gap--small{% endif %} w--full bg--gray-75 rounded--small {% if large %}p--3{% elsif slim %}p--1{% elsif tight %}p--1 lg:portrait:p--2{% else %}p--2{% endif %} no-shrink" data-pto-world>
-    <div class="{% unless stacked %}{% if compact %}col--span-7{% else %}col--span-5 lg:portrait:col--span-7{% endif %}{% endunless %} flex flex--row flex--left flex--center-y gap--small">
+    <div class="{% unless stacked %}{% if compact %}col--span-7{% else %}col--span-5 lg:portrait:col--span-7{% endif %}{% endunless %} {% if identity_only %}w--full{% endif %} flex flex--row flex--left flex--center-y gap--small">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="{% if large %}lg:w--20 lg:h--20{% elsif slim %}w--6 h--6{% elsif compact %}w--8 h--8 lg:w--12 lg:h--12{% endif %} no-shrink"><circle cx="20" cy="20" r="18.5" fill="white" stroke="black" stroke-width="1.2"/><path d="m9 6 6-3 4 2 1 4-5 2-2 5-4 1-1 5-4-5 1-6Zm6 14 6 1 4 5-3 3-2 7-4-4-2-6Zm10-16 6 4 2 4-5 1-2 4 5 3 5-1 2 7-5 4-5-3-2-5-4-1 1-5-3-3 2-4Z" fill="black"/></svg>
       <div class="flex flex--col flex--left gap--none grow">
-        <span class="label label--small {% if compact %}md:hidden lg:block{% endif %} {% if large %}lg:label--base{% endif %} text-stroke text-stroke--white">SOMEWHERE, IT'S A HOLIDAY.</span>
+        <span class="label label--small {% if compact %}{% unless identity_only %}md:hidden lg:block{% endunless %}{% endif %} {% if large %}lg:label--base{% endif %} text-stroke text-stroke--white">SOMEWHERE, IT'S A HOLIDAY.</span>
         <span class="label {% if compact %}label--small lg:label--base{% endif %} {% if large %}lg:label--large{% endif %} text--bold text-stroke text-stroke--white">{{ world.location_label | escape }}</span>
         <span class="label label--small {% if large %}lg:label--base{% endif %} text--regular text-stroke text-stroke--white">{{ world.name | escape }}</span>
       </div>
     </div>
-    <div class="{% unless stacked %}{% if compact %}col--span-5{% else %}col--span-7 lg:portrait:col--span-5{% endif %}{% endunless %} flex flex--col flex--left flex--center-y gap--none">
+    {% unless identity_only %}<div class="{% unless stacked %}{% if compact %}col--span-5{% else %}col--span-7 lg:portrait:col--span-5{% endif %}{% endunless %} flex flex--col flex--left flex--center-y gap--none">
       <span class="label label--small {% if large %}lg:label--base{% endif %} text--bold text-stroke text-stroke--white">{{ world.headline | escape }}</span>
       {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %}
-    </div>
+    </div>{% endunless %}
   </div>
   {% endif %}
 {% endtemplate %}
@@ -258,7 +258,7 @@
     </div>
     <div class="grow flex flex--col flex--left gap--small h--full" data-pto-og-action>
       {% unless dense_calendar %}{% render "pto_og_banner_action", hero: hero, profile: "column" %}{% endunless %}
-      <div class="flex flex--center w--full no-shrink"><div class="w--full w--max-full">{% render "pto_og_banner_calendar", hero: hero, profile: "og_banner", compact: true, scope: "half_horizontal-3" %}</div></div>
+      <div class="flex flex--center w--full no-shrink p--1"><div class="w--full w--max-full">{% render "pto_og_banner_calendar", hero: hero, profile: "og_banner", compact: true, scope: "half_horizontal-3" %}</div></div>
     </div>
   </div>
 {% endtemplate %}
