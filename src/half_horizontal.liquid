@@ -1,0 +1,12 @@
+<div data-pto-view="half_horizontal" class="layout layout--col layout--top gap--xsmall lg:gap--small px--2 py--0 lg:pb--2 lg:portrait:py--1">
+{% if status == 'error' %}{% render "pto_error", hero: hero %}{% else %}
+  <div class="grid grid--cols-12 gap--large lg:portrait:gap--medium w--full grow md:hidden lg:grid">
+    <div class="col--span-5">{% render "pto_hero", hero: hero, profile: "banner", side_countdown: true, portrait_stack: true, show_calendar: true, compact_calendar: true , scope: "half_horizontal-1" %}</div>
+    <div class="col--span-7 lg:portrait:hidden">{% render "pto_tickets", tickets: tickets, profile: "banner", distributed: true, ticket_limit: 4, spacious: true, status: status, scope: "half_horizontal-2" %}</div>
+    <div class="col--span-7 md:hidden lg:portrait:block">{% render "pto_tickets", tickets: tickets, profile: "banner", distributed: true, status: status, scope: "half_horizontal-portrait" %}</div>
+  </div>
+  <div class="md:hidden lg:block w--full no-shrink">{% render "pto_world", world: world, compact: true, tight: true %}</div>
+  <div class="w--full grow lg:hidden">{% render "pto_og_banner", hero: hero, world: world %}</div>
+{% endif %}
+</div>
+{% render "pto_footer", calendar: calendar, status: status %}

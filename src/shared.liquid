@@ -1,0 +1,429 @@
+{% comment %}Reusable master components. Shared only defines partials; OG full renders its original markup.{% endcomment %}
+{% template pto_identity %}
+  {% assign date_heading = hero.holiday_date | date: '%-d %B, %A' %}
+  <div class="flex flex--col flex--left gap--none w--full no-shrink">
+    <span class="label label--small {% if profile == 'full' or profile == 'full_portrait' %}lg:label--base{% endif %}">YOUR NEXT HOLIDAY</span>
+    <span class="{% if profile == 'banner' %}label label--large lg:title lg:title--base{% else %}title {% if profile == 'column' %}title--large lg:title--base lg:portrait:title--xlarge{% elsif profile == 'full' or profile == 'full_portrait' %}lg:title--xlarge{% elsif profile == 'quadrant' %}lg:title--base lg:portrait:title--base{% else %}lg:title--base{% endif %}{% endif %} text--bold w--full">{% if hero.holiday_date %}{% if profile == 'quadrant' %}{{ hero.holiday_date | date: '%-d %b' }} &middot; {{ hero.weekday }}{% else %}{{ date_heading }}{% endif %}{% else %}More good days ahead{% endif %}</span>
+    {% unless hide_name %}<span class="label {% if profile == 'quadrant' or hero.name.size > 48 %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">{{ hero.name | escape }}</span>{% endunless %}
+  </div>
+{% endtemplate %}
+{% template pto_countdown %}
+  <div class="flex flex--row flex--left flex--center-y gap--small no-shrink">
+    {% if hero.days_until > 0 %}<span class="value {% if compact_countdown %}value--base{% elsif profile == 'full' or profile == 'full_portrait' %}value--large lg:value--xxlarge{% elsif profile == 'column' %}value--large lg:portrait:value--xxlarge{% elsif profile == 'quadrant' %}value--base lg:value--large lg:portrait:value--xlarge{% else %}value--large{% endif %} text--bold">{{ hero.days_until }}</span><span class="label {% unless profile == 'full' or profile == 'full_portrait' %}label--small{% else %}lg:label--large{% endunless %}">{% if hero.days_until == 1 %}day{% else %}days{% endif %}<br>to go</span>
+    {% elsif hero.days_until == 0 %}<span class="value {% if profile == 'full' or profile == 'full_portrait' %}value--large lg:value--xlarge{% else %}value--base lg:value--large{% endif %} text--bold">Today</span>{% endif %}
+  </div>
+{% endtemplate %}
+{% template pto_action %}
+  <div class="flex flex--col flex--left gap--none w--full no-shrink">
+    <span class="{% if profile == 'banner' %}label label--large lg:title lg:title--base{% else %}title {% if profile == 'column' %}title--large lg:title--base lg:portrait:title--large{% elsif profile == 'full' or profile == 'full_portrait' %}lg:title--xlarge{% elsif profile == 'quadrant' %}title--small lg:title--base lg:portrait:title--base{% else %}lg:title--base{% endif %}{% endif %} text--bold">{{ hero.headline | escape }}</span>
+    {% if hero.status == 'bridge' %}<span class="label {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">Take {{ hero.request_label | escape }} &rarr; {{ hero.break_label | escape }} Off</span>
+    {% elsif hero.status == 'natural' %}<span class="label {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">No leave needed &rarr; {{ hero.break_label | escape }} Off</span>
+    {% else %}<span class="label {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">{{ hero.story | escape }}</span>{% endif %}
+    {% if hero.observed_label != blank %}<span class="label label--small">{{ hero.observed_label | escape }}</span>{% endif %}
+  </div>
+{% endtemplate %}
+{% template pto_calendar %}
+        {% assign count = hero.timeline.size %}
+        {% if count > 0 %}
+          {% assign canvas_width = 320 %}
+          {% assign tile = 52 %}{% assign gap = 8 %}{% assign numeral = 34 %}
+          {% assign row_count = count %}
+          {% assign image_height = 118 %}{% assign bracket_y = 96 %}{% assign row_step = 76 %}
+          {% if compact %}{% assign image_height = 108 %}{% assign bracket_y = 86 %}{% endif %}
+          {% if count > 5 %}
+            {% assign tile = 44 %}{% assign gap = 14 %}{% assign numeral = 29 %}
+            {% assign row_count = count | plus: 1 | divided_by: 2 | floor %}
+            {% assign image_height = 202 %}{% assign bracket_y = 180 %}{% assign row_step = 82 %}
+            {% if compact %}{% assign image_height = 196 %}{% assign bracket_y = 174 %}{% endif %}
+          {% endif %}
+          {% if profile == 'full' %}{% assign canvas_width = 300 %}{% if count <= 5 %}{% assign tile = 56 %}{% assign gap = 4 %}{% assign image_height = 122 %}{% assign bracket_y = 100 %}{% endif %}{% endif %}
+          {% if profile == 'banner' %}{% assign canvas_width = 340 %}{% if count > 5 %}{% assign canvas_width = 360 %}{% endif %}{% endif %}
+          {% if profile == 'banner_portrait' and count <= 5 %}{% assign canvas_width = 300 %}{% endif %}
+          {% if profile == 'full_portrait' %}
+            {% assign canvas_width = 360 %}{% if compact %}{% assign canvas_width = 380 %}{% endif %}{% assign gap = 14 %}
+            {% if count > 5 %}{% assign canvas_width = 520 %}{% assign tile = 48 %}{% assign numeral = 32 %}{% endif %}
+          {% endif %}
+          {% assign step = tile | plus: gap %}
+          {% assign width = row_count | times: step | minus: gap %}
+          {% assign offset = canvas_width | minus: width | divided_by: 2 %}
+          {% assign middle = tile | divided_by: 2 %}
+          <svg class="block w--full h--auto" data-pto-calendar width="{{ canvas_width }}" height="{{ image_height }}" viewBox="0 0 {{ canvas_width }} {{ image_height }}" role="img" aria-label="{% if hero.status == 'weekend' %}{{ hero.name | escape }} falls inside your weekend{% else %}{{ hero.total_days }} consecutive days off; use {{ hero.leave_cost }} days of leave{% endif %}">
+            <defs>
+              <pattern id="pto-adapt-weekend-dots-{{ scope }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><circle cx="2" cy="2" r="1" fill="black"/></pattern>
+              <pattern id="pto-adapt-holiday-lines-{{ scope }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><path d="M-1 1L1-1M0 6L6 0M5 7L7 5" stroke="black" stroke-width="1"/></pattern>
+            </defs>
+            {% for day in hero.timeline %}
+              {% assign row = forloop.index0 | divided_by: row_count | floor %}
+              {% assign column = forloop.index0 | modulo: row_count %}
+              {% assign this_offset = offset %}
+              {% if row == 1 %}{% assign last_count = count | minus: row_count %}{% assign last_width = last_count | times: step | minus: gap %}{% assign this_offset = canvas_width | minus: last_width | divided_by: 2 %}{% endif %}
+              {% assign row_y = row | times: row_step %}
+              {% assign x = column | times: step | plus: this_offset %}
+              {% assign cx = x | plus: middle %}
+              {% assign top = row_y | plus: 20 %}{% if compact %}{% assign top = row_y | plus: 14 %}{% endif %}
+              {% assign cy = middle | plus: top %}
+              <text x="{{ cx }}" y="{{ top | minus: 6 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="600" text-anchor="middle">{{ day.weekday | upcase | escape }}</text>
+              <rect x="{{ x }}" y="{{ top }}" width="{{ tile }}" height="{{ tile }}" rx="1" fill="{% if day.style == 'leave' %}black{% elsif day.style == 'holiday' %}url(#pto-adapt-holiday-lines-{{ scope }}){% else %}url(#pto-adapt-weekend-dots-{{ scope }}){% endif %}" stroke="black" stroke-width="1.2"/>
+              <text {% unless day.style == 'leave' %}class="text-stroke text-stroke--large text-stroke--white"{% endunless %} x="{{ cx }}" y="{{ cy | plus: 9 }}" fill="{% if day.style == 'leave' %}white{% else %}black{% endif %}" font-family="Inter,Arial,sans-serif" font-size="{{ numeral }}" font-weight="700" text-anchor="middle">{{ day.day }}</text>
+              <text x="{{ cx }}" y="{{ top | plus: tile | plus: 13 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="11" text-anchor="middle">{% if day.style == 'leave' %}Take off{% elsif day.style == 'holiday' %}Holiday{% else %}Weekend{% endif %}</text>
+            {% endfor %}
+            {% assign right = offset | plus: width %}
+            <path d="M{{ offset }} {{ bracket_y | minus: 6 }}v6H{{ right }}v-6" fill="none" stroke="black" stroke-width="1.2"/>
+            <text x="{{ canvas_width | divided_by: 2 }}" y="{{ bracket_y | plus: 17 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="12" text-anchor="middle">{% if hero.status == 'weekend' %}A holiday, but no extra day off.{% else %}<tspan font-weight="700">{{ hero.total_days }} days</tspan> to yourself.{% endif %}</text>
+          </svg>
+        {% endif %}
+
+{% endtemplate %}
+{% template pto_hero %}
+  <div class="flex flex--col flex--stretch-x gap--space-between h--full w--full" data-pto-hero>
+    {% assign wide_name = false %}{% if profile == 'banner' and hero.name.size > 28 %}{% assign wide_name = true %}{% endif %}
+    {% if side_countdown %}<div class="flex flex--col gap--none w--full no-shrink {% if portrait_stack %}lg:portrait:hidden{% endif %}"><div class="grid grid--cols-12 gap--small w--full"><div class="col--span-8">{% render "pto_identity", hero: hero, profile: profile, hide_name: wide_name %}</div><div class="col--span-4 flex flex--right flex--center-y">{% render "pto_countdown", hero: hero, profile: profile, compact_countdown: wide_name %}</div></div>{% if wide_name %}<span class="label {% if hero.name.size > 48 %}label--small{% endif %} text--regular w--full">{{ hero.name | escape }}</span>{% endif %}</div>
+    {% if portrait_stack %}<div class="md:hidden lg:portrait:flex flex--col flex--left gap--small w--full no-shrink">{% render "pto_identity", hero: hero, profile: profile %}{% render "pto_countdown", hero: hero, profile: profile %}</div>{% endif %}
+    {% else %}<div class="flex flex--col flex--left gap--xsmall w--full no-shrink">{% render "pto_identity", hero: hero, profile: profile %}{% render "pto_countdown", hero: hero, profile: profile %}</div>{% endif %}
+    {% render "pto_action", hero: hero, profile: profile %}
+    {% if show_calendar %}<div class="{% if profile == 'quadrant' and small_calendar == false %}md:hidden lg:flex{% else %}flex{% endif %} flex--center w--full no-shrink"><div class="{% if profile == 'full' or profile == 'full_portrait' %}w--full{% elsif profile == 'quadrant' %}{% if hero.timeline.size > 5 %}w--72 lg:w--80 lg:portrait:w--72{% else %}{% if hero.observed_label != blank %}w--64{% else %}w--72{% endif %} {% if hero.observed_label != blank or world_long_name %}lg:w--80{% else %}lg:w--96{% endif %} lg:portrait:w--full{% endif %}{% elsif profile == 'column' %}{% if hero.timeline.size > 5 %}w--72 lg:w--64 lg:portrait:w--72{% else %}w--full lg:w--96 lg:portrait:w--full{% endif %}{% else %}{% if hero.timeline.size > 5 %}w--64 lg:portrait:w--72{% else %}w--full{% endif %}{% endif %} w--max-full">{% if profile == 'banner' %}<div class="lg:portrait:hidden">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}</div>{% assign portrait_scope = scope | append: '-portrait' %}<div class="md:hidden lg:portrait:block">{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: "banner_portrait", scope: portrait_scope %}</div>{% else %}{% render "pto_calendar", hero: hero, compact: compact_calendar, profile: profile, scope: scope %}{% endif %}</div></div>{% endif %}
+  </div>
+{% endtemplate %}
+{% template pto_world %}
+  {% if world.name != blank %}
+  <div class="{% if stacked %}flex flex--col gap--xsmall{% else %}grid grid--cols-12 gap--small{% endif %} w--full bg--gray-75 rounded--small {% if large %}p--3{% elsif slim %}p--1{% elsif tight %}p--1 lg:portrait:p--2{% else %}p--2{% endif %} no-shrink" data-pto-world>
+    <div class="{% unless stacked %}{% if compact %}col--span-7{% else %}col--span-5 lg:portrait:col--span-7{% endif %}{% endunless %} flex flex--row flex--left flex--center-y gap--small">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="{% if large %}lg:w--20 lg:h--20{% elsif slim %}w--6 h--6{% elsif compact %}w--8 h--8 lg:w--12 lg:h--12{% endif %} no-shrink"><circle cx="20" cy="20" r="18.5" fill="white" stroke="black" stroke-width="1.2"/><path d="m9 6 6-3 4 2 1 4-5 2-2 5-4 1-1 5-4-5 1-6Zm6 14 6 1 4 5-3 3-2 7-4-4-2-6Zm10-16 6 4 2 4-5 1-2 4 5 3 5-1 2 7-5 4-5-3-2-5-4-1 1-5-3-3 2-4Z" fill="black"/></svg>
+      <div class="flex flex--col flex--left gap--none grow">
+        <span class="label label--small {% if compact %}md:hidden lg:block{% endif %} {% if large %}lg:label--base{% endif %}">SOMEWHERE, IT'S A HOLIDAY.</span>
+        <span class="label {% if compact %}label--small lg:label--base{% endif %} {% if large %}lg:label--large{% endif %} text--bold">{{ world.location_label | escape }}</span>
+        <span class="label label--small {% if large %}lg:label--base{% endif %} text--regular">{{ world.name | escape }}</span>
+      </div>
+    </div>
+    <div class="{% unless stacked %}{% if compact %}col--span-5{% else %}col--span-7 lg:portrait:col--span-5{% endif %}{% endunless %} flex flex--col flex--left flex--center-y gap--none">
+      <span class="label label--small {% if large %}lg:label--base{% endif %} text--bold">{{ world.headline | escape }}</span>
+      {% if world.source_note != blank %}<span class="label label--small text--regular">{{ world.source_note | escape }}</span>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+{% endtemplate %}
+{% template pto_tickets %}
+  {% assign long_actions = 0 %}{% for card in tickets limit: 5 %}{% assign action_size = card.request_label.size | plus: card.break_label.size %}{% if action_size > 40 %}{% assign long_actions = long_actions | plus: 1 %}{% endif %}{% endfor %}
+<style>
+  .trmnl .pto-ticket-heading {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .trmnl .pto-ticket-countdown {
+    font-size: 0.9em;
+  }
+</style>
+  <div class="flex flex--col flex--stretch-x {% if profile == 'banner' %}gap--space-between lg:portrait:gap--small{% elsif profile == 'column' and long_actions > 2 %}gap--xsmall{% else %}gap--small{% endif %} {% if profile == 'full' %}lg:gap--space-between lg:portrait:gap--small{% endif %} w--full {% if distributed %}h--full{% else %}h--auto{% endif %}" data-pto-tickets>
+    <span class="label {% if profile == 'full' %}lg:label--large{% else %}lg:label--base{% endif %} text--bold no-shrink">YOUR NEXT ESCAPES</span>
+    {% assign ticket_count = ticket_limit | default: 5 %}
+    {% for card in tickets limit: ticket_count %}
+      {% assign ticket_action_size = card.request_label.size | plus: card.break_label.size %}
+      {% assign paid_pto = false %}{% if card.status == 'available' and card.leave_cost > 0 %}{% assign paid_pto = true %}{% endif %}
+      <div class="relative w--full {% if profile == 'full' %}h--20 lg:h--24 {% if ticket_action_size > 40 %}lg:portrait:h--20{% else %}lg:portrait:h--16{% endif %}{% elsif profile == 'column' %}h--auto{% elsif spacious %}h--14{% else %}h--11 lg:portrait:h--16{% endif %} no-shrink" data-pto-ticket>
+          <svg class="absolute inset--0 w--full h--full" viewBox="0 0 400 56" preserveAspectRatio="none" aria-hidden="true">
+            {% unless paid_pto %}<defs><pattern id="pto-adapt-ticket-fill-{{ scope }}-{{ forloop.index }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/>{% if card.status == 'weekend' %}<circle cx="2" cy="2" r="0.7" fill="black"/>{% else %}<path d="M0 6L6 0M-1 1L1-1M5 7L7 5" stroke="black" stroke-width="0.7"/>{% endif %}</pattern></defs>{% endunless %}
+            <path d="M8 1H394Q399 1 399 6V50Q399 55 394 55H8Q1 55 1 48V34a6 6 0 0 0 0-12V8Q1 1 8 1Z" fill="white" stroke="black" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            <path d="M8 2H64V54H8Q2 54 2 48V34a6 6 0 0 0 0-12V8Q2 2 8 2Z" fill="{% if paid_pto %}black{% else %}url(#pto-adapt-ticket-fill-{{ scope }}-{{ forloop.index }}){% endif %}"/>
+            <path d="M{% if paid_pto %}61{% else %}64{% endif %} 3V53" stroke="{% if paid_pto %}white{% else %}black{% endif %}" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
+          </svg>
+
+        <div class="relative grid grid--cols-12 gap--small w--full {% if profile == 'column' %}h--auto h--min-14 lg:portrait:h--min-16{% else %}h--full{% endif %} px--1">
+          <div class="col--span-2 flex flex--col flex--center gap--none">
+            {% if card.status == 'weekend' %}<span class="label label--small {% if profile == 'full' %}lg:label--base{% endif %} text--bold text-stroke text-stroke--medium text-stroke--white">OH</span><span class="label label--small {% if profile == 'full' %}lg:label--base{% endif %} text--bold text-stroke text-stroke--medium text-stroke--white">NO</span>
+            {% elsif card.status == 'day' %}<span class="label label--small text--bold text-stroke text-stroke--medium text-stroke--white">DAY</span><span class="label label--small text--bold text-stroke text-stroke--medium text-stroke--white">OFF</span>
+            {% else %}<span class="label label--small text--bold {% if paid_pto %}text--white{% else %}text-stroke text-stroke--medium text-stroke--white{% endif %}">USE</span><span class="value value--xsmall {% if profile == 'full' %}lg:value--base{% elsif profile == 'column' %}lg:value--xsmall{% else %}lg:value--small{% endif %} text--bold {% if paid_pto %}text--white{% else %}text-stroke text-stroke--large text-stroke--white{% endif %}">{{ card.leave_cost }}{% unless profile == 'column' %}<span class="label label--small text--regular {% if paid_pto %}text--white{% else %}text-stroke text-stroke--medium text-stroke--white{% endif %}">&nbsp;{% if card.leave_cost == 1 %}day{% else %}days{% endif %}</span>{% endunless %}</span>{% if profile == 'column' %}<span class="label label--small {% if paid_pto %}text--white{% else %}text-stroke text-stroke--medium text-stroke--white{% endif %}">{% if card.leave_cost == 1 %}day{% else %}days{% endif %}</span>{% endif %}{% endif %}
+          </div>
+          <div class="col--span-8 flex flex--col flex--left flex--center-y gap--none pr--1 {% if profile == 'column' %}py--1{% endif %}">
+            <span class="label label--small {% if profile == 'full' and card.title.size <= 48 %}lg:label--large{% elsif profile == 'column' and ticket_action_size > 40 %}lg:label--small{% else %}lg:label--base{% endif %} pto-ticket-heading text--regular w--full"><span class="text--bold">{{ card.title | escape }}</span> &middot; <span class="pto-ticket-countdown text--regular">{{ card.countdown_label | escape }}</span></span>
+            {% if card.status == 'available' %}<span class="label label--small {% if profile == 'full' %}lg:label--base{% else %}lg:label--small{% endif %} text--regular w--full">{% if card.leave_cost == 0 %}No leave needed{% else %}Take {{ card.request_label | escape }}{% endif %} &rarr; {{ card.break_label | escape }} Off</span>
+            {% else %}<span class="label label--small text--regular w--full">{{ card.weekend_line | escape }}</span>{% endif %}
+          </div>
+          <div class="col--span-2 flex flex--col flex--center gap--none">
+            <span class="value value--xsmall {% if profile == 'full' %}lg:value--base{% elsif profile == 'column' %}lg:value--xsmall{% else %}lg:value--small{% endif %} text--bold">{{ card.total_days }}</span><span class="label label--small text--center">{% if profile == 'column' %}{% if card.status == 'weekend' %}extra{% elsif card.total_days == 1 %}day{% else %}days{% endif %}<br>{% if card.status == 'weekend' %}days{% else %}off{% endif %}{% else %}{% if card.status == 'weekend' %}extra days{% elsif card.total_days == 1 %}day off{% else %}days off{% endif %}{% endif %}</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    {% if tickets.size == 0 %}<span class="label label--small">{% if status == 'partial' %}Waiting for more published dates.{% else %}No upcoming national dates listed.{% endif %}</span>{% endif %}
+  </div>
+{% endtemplate %}
+{% template pto_footer %}
+<div class="title_bar">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="24" height="24" class="image image-stroke w--6 h--6 no-shrink" aria-hidden="true">
+  <path d="M341.4 139.57C337.35 142.1 330.79 141.63 326.16 142.28C313.85 144 301.47 145.32 289.2 147.22C250.31 153.24 211.16 157.49 172.3 163.73C163.29 165.18 154.21 166.46 145.18 167.76C137.12 168.92 128.92 169.52 121.55 173.24C110.46 178.84 101.26 190.56 100.11 203.16C99.14 213.74 102.14 225.46 103.71 235.9C104.87 243.53 104.81 251.87 106.99 259.29C109.05 266.29 121.86 269.53 118.7 278.38C117.04 283.03 103.6 277.04 100.16 276.07C93.78 274.25 87.47 272.17 81.15 270.17C69.49 266.47 58.11 264.02 53.33 251.31C49.02 239.87 58.22 222.06 61.77 210.65C62.9 207.01 63.74 199.18 67.32 197.1C69.61 195.76 76.12 196.47 79.19 195.77C87.63 193.85 95.85 187.74 99.74 179.93C105 169.39 103.61 156.02 95.83 147.1C94.07 145.08 86.48 140.55 86.06 139.08C85.08 135.75 88.72 130.14 89.9 127.03C93.96 116.28 97.29 102.17 106.22 94.31C121.3 81.05 141.28 90.09 158.35 93.83C201.59 103.29 244.45 114.94 287.8 123.86C300.81 126.53 313.62 130.04 326.6 132.83C331.59 133.9 338.68 134.59 341.4 139.57ZM408.55 139.09C411.61 138.89 414.34 139.23 417.3 139.9C438.77 144.75 438.68 170.09 441.16 187.52C441.81 192.07 445.49 207.41 444.42 210.88C443.75 213.08 433.95 216.63 431.35 218.36C421.08 225.21 414.73 239.26 417.36 251.47C420.15 264.45 429.27 274.22 442.11 277.75C445.24 278.61 452.92 277.79 454.98 279.35C457.18 281.02 457.71 292.2 458.23 295.28C459.68 303.79 460.77 312.38 462.16 320.9C463.45 328.83 464.88 336.18 460.7 343.57C454.03 355.35 441.6 356.57 429.47 358.16C417.34 359.76 405.26 361.87 393.08 363.05C368.39 365.43 343.71 369.42 319.12 372.72C295.39 375.9 271.51 378.51 247.85 382.26C234 384.46 219.93 386.61 205.97 387.99C192.71 389.3 179.41 391.34 166.22 393.24C154.16 394.99 142.04 396.17 133.26 385.98C125.34 376.8 124.67 352.17 122.77 339.81C122.26 336.48 119.58 326.25 121.41 323.63C122.95 321.42 131.74 319.59 134.73 317.76C144.43 311.82 150.93 301.07 151.21 289.67C151.53 276.06 143.6 263.53 131.03 258.25C127.99 256.98 117.57 256.23 116.35 254.67C114.45 252.22 114.27 243.19 113.85 239.86C112.37 228.01 107.2 208.98 111.09 197.86C117.25 180.24 133.66 179.14 149.39 176.83C160.86 175.14 172.32 173.42 183.81 171.84C234.71 164.86 285.71 157.74 336.48 149.8C352.21 147.35 368.03 145.36 383.74 142.8C391.88 141.47 400.32 139.64 408.55 139.09ZM271.55 178.35C258.85 180.4 261.11 193.5 262.55 202.9C263.74 210.71 264.67 218.9 275.17 217.89C287.81 216.67 285.64 205.18 285 196.33C284.42 188.43 282.54 176.57 271.55 178.35ZM352 207.81C347.97 208.38 344.77 211.37 341.58 213.71C335.01 218.53 322.03 224.12 323.88 234.06C324.37 236.69 326.03 239.07 328.22 240.59C337.08 246.72 348.29 235.07 355.27 230.21C358.47 227.99 362.15 226.09 363.76 222.31C367.17 214.31 360.07 206.68 352 207.81ZM205.16 221.85C197.57 222.33 192.45 230.68 196.12 237.59C198.09 241.3 201.82 242.48 205.32 244.28C212.72 248.08 223.26 255.6 230.66 248.2C232.64 246.21 233.97 243.4 233.98 240.57C234.01 231.4 223.1 228.86 216.45 225.62C212.86 223.87 209.29 221.58 205.16 221.85ZM277.64 225.13C240.23 227.37 219.51 273.01 246.31 300.98C250.68 305.54 255.85 308.92 261.64 311.37C267.58 313.88 274.34 314.96 280.78 314.73C320.75 313.28 342.64 262.52 309.94 235.94C305.64 232.45 300.93 229.63 295.7 227.81C289.93 225.79 283.76 224.76 277.64 225.13ZM336.04 288.2C328.85 289.68 324.82 298.43 329.14 304.65C331.16 307.56 334.59 308.67 337.56 310.28C344.93 314.26 356.83 323.47 364.51 315.65C376.31 303.64 355.58 295.88 347.69 291.74C344.03 289.82 340.39 287.31 336.04 288.2ZM226.17 298.03C223.22 298.57 220.69 301.06 218.26 302.66C213.86 305.56 204.91 310.31 202.2 314.63C199.41 319.09 200.38 325.9 205.07 328.7C213.56 333.77 223.41 323.68 230.04 319.12C232.92 317.14 236.39 315.38 237.93 312.05C241.72 303.87 234.29 296.57 226.17 298.03ZM283.15 320.4C272.6 322.59 274.45 331.67 274.87 339.7C275.32 348.49 275.7 360.53 288.13 358.89C298.5 357.52 297.42 347.42 296.99 339.7C296.52 331.15 295.69 317.79 283.15 320.4Z" fill="#000000" fill-rule="evenodd" stroke="#000000" stroke-width="0.25" stroke-linejoin="round"/>
+</svg>
+  <span class="title"><span class="{% if short %}label label--small {% endif %}text--bold">Holidays, Multiplied: Which days should I take off?</span></span>
+</div>
+
+{% endtemplate %}
+{% template pto_error %}
+  <div class="flex flex--col flex--center gap--small h--full"><span class="title text--bold">Let's get your dates back.</span><span class="description text--center">{{ hero.story | escape }}</span></div>
+{% endtemplate %}
+{% template pto_og_banner_action %}
+  <div class="flex flex--col flex--left gap--none w--full no-shrink">
+    <span class="{% if profile == 'banner' %}label label--large lg:title lg:title--base{% else %}title {% if profile == 'column' %}{% if hero.headline.size > 25 %}title--base{% else %}title--large{% endif %} lg:title--base lg:portrait:title--large{% elsif profile == 'full' or profile == 'full_portrait' %}lg:title--xlarge{% elsif profile == 'quadrant' %}title--small lg:title--base lg:portrait:title--base{% else %}lg:title--base{% endif %}{% endif %} text--bold">{{ hero.headline | escape }}</span>
+    {% if hero.status == 'bridge' %}<span class="label label--small {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">Take {{ hero.request_label | escape }} &rarr; {{ hero.break_label | escape }} Off</span>
+    {% elsif hero.status == 'natural' %}<span class="label label--small {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">No leave needed &rarr; {{ hero.break_label | escape }} Off</span>
+    {% else %}<span class="label label--small {% if profile == 'quadrant' or profile == 'banner' %}label--small{% endif %} {% if profile == 'full' or profile == 'full_portrait' %}lg:label--large{% else %}lg:label--base{% endif %} text--regular w--full">{{ hero.story | escape }}</span>{% endif %}
+    {% if hero.observed_label != blank %}<span class="label label--small">{{ hero.observed_label | escape }}</span>{% endif %}
+  </div>
+{% endtemplate %}
+{% template pto_og_banner_calendar %}
+        {% assign count = hero.timeline.size %}
+        {% if count > 0 %}
+          {% assign canvas_width = 320 %}
+          {% assign tile = 52 %}{% assign gap = 8 %}{% assign numeral = 34 %}
+          {% assign row_count = count %}
+          {% assign image_height = 118 %}{% assign bracket_y = 96 %}{% assign row_step = 76 %}
+          {% if compact %}{% assign image_height = 108 %}{% assign bracket_y = 86 %}{% endif %}
+          {% if count > 5 %}
+            {% assign tile = 44 %}{% assign gap = 14 %}{% assign numeral = 29 %}
+            {% assign row_count = count | plus: 1 | divided_by: 2 | floor %}
+            {% assign image_height = 202 %}{% assign bracket_y = 180 %}{% assign row_step = 82 %}
+            {% if compact %}{% assign image_height = 196 %}{% assign bracket_y = 174 %}{% endif %}
+          {% endif %}
+          {% if profile == 'full' %}{% assign canvas_width = 300 %}{% if count <= 5 %}{% assign tile = 56 %}{% assign gap = 4 %}{% assign image_height = 122 %}{% assign bracket_y = 100 %}{% endif %}{% endif %}
+          {% if profile == 'banner' %}{% assign canvas_width = 340 %}{% if count > 5 %}{% assign canvas_width = 360 %}{% endif %}{% endif %}
+          {% if profile == 'banner_portrait' and count <= 5 %}{% assign canvas_width = 300 %}{% endif %}
+          {% if profile == 'full_portrait' %}
+            {% assign canvas_width = 360 %}{% if compact %}{% assign canvas_width = 380 %}{% endif %}{% assign gap = 14 %}
+            {% if count > 5 %}{% assign canvas_width = 520 %}{% assign tile = 48 %}{% assign numeral = 32 %}{% endif %}
+          {% endif %}
+                    {% assign weekday_size = 11 %}{% assign caption_size = 11 %}{% assign result_size = 12 %}{% assign numeral_offset = 9 %}
+          {% assign caption_offset = 11 %}{% assign result_offset = 13 %}
+          {% if profile == 'og_banner' %}
+            {% assign canvas_width = 360 %}{% assign tile = 64 %}{% assign gap = 32 %}{% assign numeral = 42 %}{% assign numeral_offset = 12 %}
+            {% assign weekday_size = 16 %}{% assign caption_size = 14 %}{% assign result_size = 14 %}
+            {% assign image_height = 136 %}{% assign bracket_y = 112 %}{% assign caption_offset = 16 %}{% assign result_offset = 18 %}
+            {% if hero.headline.size <= 25 and count <= 5 %}{% assign canvas_width = 380 %}{% endif %}
+            {% if hero.observed_label != blank and count <= 5 %}{% assign canvas_width = 420 %}{% endif %}
+            {% if count > 2 %}{% assign tile = 56 %}{% assign gap = 16 %}{% assign numeral = 37 %}{% assign numeral_offset = 11 %}{% endif %}
+            {% if count > 4 %}{% assign tile = 48 %}{% assign gap = 10 %}{% assign numeral = 32 %}{% assign numeral_offset = 9 %}{% assign caption_size = 13 %}{% endif %}
+            {% if count > 5 %}
+              {% assign tile = 44 %}{% assign gap = 14 %}{% assign numeral = 29 %}{% assign numeral_offset = 9 %}
+              {% assign weekday_size = 14 %}{% assign caption_size = 11 %}{% assign result_size = 14 %}
+              {% assign row_step = 76 %}{% assign image_height = 172 %}{% assign bracket_y = 154 %}
+              {% assign caption_offset = 11 %}{% assign result_offset = 13 %}
+            {% endif %}
+          {% endif %}
+{% assign step = tile | plus: gap %}
+          {% assign width = row_count | times: step | minus: gap %}
+          {% assign offset = canvas_width | minus: width | divided_by: 2 %}
+          {% assign middle = tile | divided_by: 2 %}
+          <svg class="block w--full h--auto" data-pto-calendar width="{{ canvas_width }}" height="{{ image_height }}" viewBox="0 0 {{ canvas_width }} {{ image_height }}" role="img" aria-label="{% if hero.status == 'weekend' %}{{ hero.name | escape }} falls inside your weekend{% else %}{{ hero.total_days }} consecutive days off; use {{ hero.leave_cost }} days of leave{% endif %}">
+            <defs>
+              <pattern id="pto-adapt-weekend-dots-{{ scope }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><circle cx="2" cy="2" r="1" fill="black"/></pattern>
+              <pattern id="pto-adapt-holiday-lines-{{ scope }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><path d="M-1 1L1-1M0 6L6 0M5 7L7 5" stroke="black" stroke-width="1"/></pattern>
+            </defs>
+            {% for day in hero.timeline %}
+              {% assign row = forloop.index0 | divided_by: row_count | floor %}
+              {% assign column = forloop.index0 | modulo: row_count %}
+              {% assign this_offset = offset %}
+              {% if row == 1 %}{% assign last_count = count | minus: row_count %}{% assign last_width = last_count | times: step | minus: gap %}{% assign this_offset = canvas_width | minus: last_width | divided_by: 2 %}{% endif %}
+              {% assign row_y = row | times: row_step %}
+              {% assign x = column | times: step | plus: this_offset %}
+              {% assign cx = x | plus: middle %}
+              {% assign top = row_y | plus: 20 %}{% if compact %}{% assign top = row_y | plus: 14 %}{% endif %}
+              {% if profile == 'og_banner' %}{% assign top = row_y | plus: 18 %}{% if count <= 5 %}{% assign top = row_y | plus: 20 %}{% endif %}{% endif %}
+              {% assign cy = middle | plus: top %}
+              <text x="{{ cx }}" y="{{ top | minus: 6 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="{{ weekday_size }}" font-weight="600" text-anchor="middle">{{ day.weekday | upcase | escape }}</text>
+              <rect x="{{ x }}" y="{{ top }}" width="{{ tile }}" height="{{ tile }}" rx="1" fill="{% if day.style == 'leave' %}black{% elsif day.style == 'holiday' %}url(#pto-adapt-holiday-lines-{{ scope }}){% else %}url(#pto-adapt-weekend-dots-{{ scope }}){% endif %}" stroke="black" stroke-width="1.2"/>
+              <text {% unless day.style == 'leave' %}class="text-stroke text-stroke--large text-stroke--white"{% endunless %} x="{{ cx }}" y="{{ cy | plus: numeral_offset }}" fill="{% if day.style == 'leave' %}white{% else %}black{% endif %}" font-family="Inter,Arial,sans-serif" font-size="{{ numeral }}" font-weight="700" text-anchor="middle">{{ day.day }}</text>
+              <text x="{{ cx }}" y="{{ top | plus: tile | plus: caption_offset }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="{{ caption_size }}" text-anchor="middle">{% if day.style == 'leave' %}Take off{% elsif day.style == 'holiday' %}Holiday{% else %}Weekend{% endif %}</text>
+            {% endfor %}
+            {% assign right = offset | plus: width %}
+            <path d="M{{ offset }} {{ bracket_y | minus: 6 }}v6H{{ right }}v-6" fill="none" stroke="black" stroke-width="1.2"/>
+            <text x="{{ canvas_width | divided_by: 2 }}" y="{{ bracket_y | plus: result_offset }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="{{ result_size }}" text-anchor="middle">{% if hero.status == 'weekend' %}A holiday, but no extra day off.{% else %}<tspan font-weight="700">{{ hero.total_days }} days</tspan> to yourself.{% endif %}</text>
+          </svg>
+        {% endif %}
+
+{% endtemplate %}
+{% template pto_og_banner %}
+  {% assign date_heading = hero.holiday_date | date: '%-d %B, %A' %}
+  {% assign dense_calendar = false %}{% if hero.timeline.size > 5 %}{% assign dense_calendar = true %}{% endif %}
+  <div class="flex flex--row flex--stretch-y gap--large w--full h--full" data-pto-og-banner>
+    <div class="w--96 no-shrink flex flex--col flex--left gap--space-between h--full" data-pto-og-identity>
+      <div class="flex flex--col flex--left gap--none w--full no-shrink">
+        <span class="label label--small h--3">YOUR NEXT HOLIDAY</span>
+        <span class="title {% if dense_calendar %}title--large h--8{% else %}title--xxlarge h--10{% endif %} text--bold mb--1" data-fit-value="true" data-pto-og-date>{% if hero.holiday_date %}{{ date_heading }}{% else %}More good days ahead{% endif %}</span>
+        <span class="label {% if hero.name.size > 48 %}label--small{% elsif dense_calendar %}label--base{% elsif hero.name.size > 28 %}label--large{% else %}label--xlarge{% endif %} {% if dense_calendar %}h--4{% else %}h--6{% endif %} text--regular" data-fit-value="true">{{ hero.name | escape }}</span>
+      </div>
+      <div class="flex flex--row flex--left flex--center-y gap--small no-shrink">
+        {% if hero.days_until > 0 %}<span class="value {% if dense_calendar %}value--large h--16{% else %}value--xxlarge h--24{% endif %} text--bold" data-pto-og-countdown>{{ hero.days_until }}</span><span class="label {% if dense_calendar %}label--small{% endif %}">{% if hero.days_until == 1 %}day{% else %}days{% endif %}<br>to go</span>
+        {% elsif hero.days_until == 0 %}<span class="value value--xlarge text--bold">Today</span>{% endif %}
+      </div>
+      {% if dense_calendar %}{% render "pto_action", hero: hero, profile: "banner" %}{% endif %}
+    </div>
+    <div class="grow flex flex--col flex--left gap--small h--full" data-pto-og-action>
+      {% unless dense_calendar %}{% render "pto_og_banner_action", hero: hero, profile: "column" %}{% endunless %}
+      <div class="flex flex--center w--full no-shrink"><div class="w--full w--max-full">{% render "pto_og_banner_calendar", hero: hero, profile: "og_banner", compact: true, scope: "half_horizontal-3" %}</div></div>
+    </div>
+  </div>
+{% endtemplate %}
+
+{% template pto_og_full %}
+{% comment %}Full view. Native framework layout; SVG only for ticket stubs and calendar artwork.{% endcomment %}
+{% comment %}CSS clamping preserves mixed weights; the framework JS clamp rewrites rich text as plain text.{% endcomment %}
+<style>
+  .trmnl .pto-ticket-heading {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .trmnl .pto-ticket-countdown {
+    font-size: 0.9em;
+  }
+</style>
+<div class="layout layout--col layout--top px--4 pt--2 lg:hidden">
+{% if status == 'error' %}
+  <div class="flex flex--col flex--center gap--medium h--full"><span class="title title--large text--bold">Let's get your dates back.</span><span class="description text--center">{{ hero.story | escape }}</span></div>
+{% else %}
+  {% assign hero_count = hero.timeline.size %}
+  {% assign hero_date_heading = hero.holiday_date | date: '%-d %B, %A' %}
+  {% assign dense_world = false %}
+  {% if world.name.size > 70 and world.location_label.size > 32 %}{% assign dense_world = true %}{% endif %}
+  {% if world.headline.size > 150 %}{% assign dense_world = true %}{% endif %}
+  {% assign long_ticket_action = false %}
+  {% for card in tickets %}{% assign action_size = card.request_label.size | plus: card.break_label.size %}{% if action_size > 40 %}{% assign long_ticket_action = true %}{% endif %}{% endfor %}
+  {% assign compact_hero = false %}
+  {% if hero_count > 5 or hero.name.size > 70 or dense_world %}{% assign compact_hero = true %}{% endif %}
+  <div class="grid grid--cols-12 gap--large w--full {% if dense_world and long_ticket_action %}h--76{% elsif dense_world %}h--72{% else %}h--80{% endif %} grow no-shrink">
+    <div class="col--span-5 flex flex--col flex--stretch-x gap--space-between pr--3">
+      <div class="flex flex--col flex--left gap--xsmall">
+        <span class="label label--small">YOUR NEXT HOLIDAY</span>
+        <span class="title {% if hero_date_heading.size > 26 %}title--small{% endif %} text--bold">{% if hero.holiday_date %}{{ hero_date_heading }}{% else %}More good days ahead{% endif %}</span>
+        <span class="label {% if hero.name.size > 48 or compact_hero %}label--small{% endif %} text--regular">{{ hero.name | escape }}</span>
+        <div class="flex flex--row flex--left flex--center-y gap--small pt--1">
+          {% if hero.days_until > 0 %}<span class="value {% if compact_hero %}value--base{% else %}value--large{% endif %} text--bold">{{ hero.days_until }}</span><span class="label">{% if hero.days_until == 1 %}day{% else %}days{% endif %}<br>to go</span>
+          {% elsif hero.days_until == 0 %}<span class="value value--medium text--bold">Today</span>{% endif %}
+        </div>
+      </div>
+      <div class="flex flex--col flex--left gap--xsmall pt--2">
+        <span class="title {% if compact_hero %}title--small{% endif %} text--bold">{{ hero.headline | escape }}</span>
+        {% if hero.status == 'bridge' %}
+          <span class="label {% if hero.request_label.size > 18 or compact_hero %}label--small{% endif %} text--regular">Take {{ hero.request_label | escape }} &rarr; {{ hero.break_label | escape }} Off</span>
+        {% elsif hero.status == 'natural' %}
+          <span class="label {% if compact_hero %}label--small{% endif %} text--regular">No leave needed &rarr; {{ hero.break_label | escape }} Off</span>
+          {% if hero.observed_label != blank %}<span class="label label--small">{{ hero.observed_label | escape }}</span>{% endif %}
+        {% elsif hero.status == 'weekend' %}
+          <span class="label text--regular">{{ hero.story | escape }}</span>
+          {% if hero.observed_label != blank %}<span class="label label--small">{{ hero.observed_label | escape }}</span>{% endif %}
+        {% else %}<span class="label label--small">{{ hero.story | escape }}</span>{% endif %}
+      </div>
+      <div class="flex flex--center w--full pb--1">
+        {% assign count = hero.timeline.size %}
+        {% if count > 0 %}
+          {% if count <= 3 %}{% assign tile = 54 %}{% assign gap = 12 %}{% assign numeral = 30 %}
+          {% elsif count <= 5 %}{% assign tile = 44 %}{% assign gap = 14 %}{% assign numeral = 27 %}
+          {% else %}{% assign tile = 32 %}{% assign gap = 22 %}{% assign numeral = 21 %}{% endif %}
+          {% if count > 5 %}{% assign row_count = count | plus: 1 | divided_by: 2 | floor %}{% assign image_height = 158 %}{% assign bracket_y = 136 %}{% else %}{% assign row_count = count %}{% assign image_height = 110 %}{% assign bracket_y = 91 %}{% endif %}
+          {% assign step = tile | plus: gap %}
+          {% assign width = row_count | times: step | minus: gap %}
+          {% assign offset = 300 | minus: width | divided_by: 2 %}
+          {% assign middle = tile | divided_by: 2 %}
+          <svg width="300" height="{{ image_height }}" viewBox="0 0 300 {{ image_height }}" role="img" aria-label="{% if hero.status == 'weekend' %}{{ hero.name | escape }} falls inside your weekend{% else %}{{ hero.total_days }} consecutive days off; use {{ hero.leave_cost }} days of leave{% endif %}">
+            <defs>
+              <pattern id="pto-weekend-dots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><circle cx="2" cy="2" r="1" fill="black"/></pattern>
+              <pattern id="pto-holiday-lines" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/><path d="M-1 1L1-1M0 6L6 0M5 7L7 5" stroke="black" stroke-width="1"/></pattern>
+            </defs>
+            {% for day in hero.timeline %}
+              {% assign row = forloop.index0 | divided_by: row_count | floor %}
+              {% assign column = forloop.index0 | modulo: row_count %}
+              {% assign this_offset = offset %}
+              {% if row == 1 %}{% assign last_count = count | minus: row_count %}{% assign last_width = last_count | times: step | minus: gap %}{% assign this_offset = 300 | minus: last_width | divided_by: 2 %}{% endif %}
+              {% assign row_y = row | times: 64 %}
+              {% assign x = column | times: step | plus: this_offset %}
+              {% assign cx = x | plus: middle %}
+              {% if count > 5 %}{% assign top = row_y | plus: 14 %}{% else %}{% assign top = 20 %}{% endif %}
+              {% assign cy = middle | plus: top %}
+              <text x="{{ cx }}" y="{{ top | minus: 6 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="10" font-weight="600" text-anchor="middle">{{ day.weekday | upcase | escape }}</text>
+              <rect x="{{ x }}" y="{{ top }}" width="{{ tile }}" height="{{ tile }}" rx="1" fill="{% if day.style == 'leave' %}black{% elsif day.style == 'holiday' %}url(#pto-holiday-lines){% else %}url(#pto-weekend-dots){% endif %}" stroke="black" stroke-width="1.2"/>
+              <text {% unless day.style == 'leave' %}class="text-stroke text-stroke--large text-stroke--white"{% endunless %} x="{{ cx }}" y="{{ cy | plus: 9 }}" fill="{% if day.style == 'leave' %}white{% else %}black{% endif %}" font-family="Inter,Arial,sans-serif" font-size="{{ numeral }}" font-weight="700" text-anchor="middle">{{ day.day }}</text>
+              <text x="{{ cx }}" y="{{ top | plus: tile | plus: 13 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="10" text-anchor="middle">{% if day.style == 'leave' %}Take off{% elsif day.style == 'holiday' %}Holiday{% else %}Weekend{% endif %}</text>
+            {% endfor %}
+            {% assign right = offset | plus: width %}
+            <path d="M{{ offset }} {{ bracket_y | minus: 6 }}v6H{{ right }}v-6" fill="none" stroke="black" stroke-width="1.2"/>
+            <text x="150" y="{{ bracket_y | plus: 17 }}" fill="black" font-family="Inter,Arial,sans-serif" font-size="12" text-anchor="middle">{% if hero.status == 'weekend' %}A holiday, but no extra day off.{% else %}<tspan font-weight="700">{{ hero.total_days }} days</tspan> to yourself.{% endif %}</text>
+          </svg>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col--span-7 flex flex--col flex--stretch-x {% if tickets.size >= 5 %}gap--space-between{% else %}gap--small{% endif %} pl--3">
+      <div class="flex flex--row flex--left pb--1 no-shrink"><span class="label text--bold">YOUR NEXT ESCAPES</span></div>
+      {% for card in tickets %}
+        {% assign ticket_action_size = card.request_label.size | plus: card.break_label.size %}
+        {% assign paid_pto = false %}{% if card.status == 'available' and card.leave_cost > 0 %}{% assign paid_pto = true %}{% endif %}
+        <div class="relative w--full {% if dense_world and ticket_action_size <= 40 %}h--12{% else %}h--14{% endif %} no-shrink">
+          <svg class="absolute inset--0 w--full h--full" viewBox="0 0 400 56" preserveAspectRatio="none" aria-hidden="true">
+            {% unless paid_pto %}<defs><pattern id="ticket-fill-{{ forloop.index }}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="white"/>{% if card.status == 'weekend' %}<circle cx="2" cy="2" r="0.7" fill="black"/>{% else %}<path d="M0 6L6 0M-1 1L1-1M5 7L7 5" stroke="black" stroke-width="0.7"/>{% endif %}</pattern></defs>{% endunless %}
+            <path d="M8 1H394Q399 1 399 6V50Q399 55 394 55H8Q1 55 1 48V34a6 6 0 0 0 0-12V8Q1 1 8 1Z" fill="white" stroke="black" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            <path d="M8 2H64V54H8Q2 54 2 48V34a6 6 0 0 0 0-12V8Q2 2 8 2Z" fill="{% if paid_pto %}black{% else %}url(#ticket-fill-{{ forloop.index }}){% endif %}"/>
+            <path d="M{% if paid_pto %}61{% else %}64{% endif %} 3V53" stroke="{% if paid_pto %}white{% else %}black{% endif %}" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="relative grid grid--cols-12 gap--small w--full h--full px--1">
+          <div class="col--span-2 flex flex--col flex--center gap--none" role="img" aria-label="{% if card.status == 'weekend' %}Weekend holiday{% elsif card.status == 'day' %}Holiday day off{% else %}Use {{ card.leave_cost }} {% if card.leave_cost == 1 %}day{% else %}days{% endif %} of leave{% endif %}">
+              {% if card.status == 'weekend' %}
+                <span class="label text--bold text-stroke text-stroke--medium text-stroke--white">OH</span><span class="label text--bold text-stroke text-stroke--medium text-stroke--white">NO</span>
+              {% elsif card.status == 'day' %}
+                <span class="label label--small text--bold text-stroke text-stroke--medium text-stroke--white">DAY</span><span class="label label--small text--bold text-stroke text-stroke--medium text-stroke--white">OFF</span>
+              {% else %}
+                <span class="label label--small text--bold {% if paid_pto %}text--white{% else %}text-stroke text-stroke--medium text-stroke--white{% endif %}">USE</span>
+                <span class="value value--small text--bold {% if paid_pto %}text--white{% else %}text-stroke text-stroke--large text-stroke--white{% endif %}" data-use-count>{{ card.leave_cost }}<span class="label label--small text--regular {% if paid_pto %}text--white{% else %}text-stroke text-stroke--medium text-stroke--white{% endif %}">&nbsp;{% if card.leave_cost == 1 %}day{% else %}days{% endif %}</span></span>
+              {% endif %}
+          </div>
+          <div class="col--span-8 flex flex--col flex--left flex--center-y gap--none pr--1">
+            {% if card.status == 'available' %}
+              <span class="label pto-ticket-heading {% if card.title.size > 38 or dense_world or ticket_action_size > 40 %}label--small{% endif %} text--regular w--full" data-ticket-heading><span class="text--bold">{{ card.title | escape }}</span> &middot; <span class="text--regular pto-ticket-countdown">{{ card.countdown_label | escape }}</span></span>
+              <span class="label label--small text--regular w--full">{% if card.leave_cost == 0 %}No leave needed{% else %}Take {{ card.request_label | escape }}{% endif %} &rarr; {{ card.break_label | escape }} Off</span>
+            {% else %}
+              <span class="label pto-ticket-heading {% if card.title.size > 38 or dense_world %}label--small{% endif %} text--regular w--full" data-ticket-heading><span class="text--bold">{{ card.title | escape }}</span> &middot; <span class="text--regular pto-ticket-countdown">{{ card.countdown_label | escape }}</span></span>
+              <span class="label label--small text--regular w--full">{{ card.weekend_line | escape }}</span>
+            {% endif %}
+          </div>
+          <div class="col--span-2 flex flex--col flex--center gap--none pl--1">
+            {% if card.status == 'weekend' %}<span class="value value--xsmall text--bold">0</span><span class="label label--small text--center">extra days</span>{% else %}<span class="value value--small text--bold">{{ card.total_days }}</span><span class="label label--small">{% if card.total_days == 1 %}day off{% else %}days off{% endif %}</span>{% endif %}
+          </div>
+          </div>
+        </div>
+      {% endfor %}
+      {% if tickets.size == 0 %}<span class="label label--small">{% if status == 'partial' %}Waiting for more published dates.{% else %}No upcoming national dates listed.{% endif %}</span>{% endif %}
+    </div>
+  </div>
+  <div class="grid grid--cols-12 gap--medium w--full bg--gray-75 rounded--small p--2 no-shrink">
+    <div class="col--span-5 flex flex--row flex--left flex--center-y gap--small">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="no-shrink"><circle cx="20" cy="20" r="18.5" fill="white" stroke="black" stroke-width="1.2"/><path d="m9 6 6-3 4 2 1 4-5 2-2 5-4 1-1 5-4-5 1-6Zm6 14 6 1 4 5-3 3-2 7-4-4-2-6Zm10-16 6 4 2 4-5 1-2 4 5 3 5-1 2 7-5 4-5-3-2-5-4-1 1-5-3-3 2-4Z" fill="black"/></svg>
+      <div class="flex flex--col flex--left gap--none">
+        <span class="label label--small">SOMEWHERE, IT'S A HOLIDAY.</span>
+        <span class="label {% if world.location_label.size > 32 %}label--small{% endif %} text--bold">{{ world.location_label | escape }}</span>
+        <span class="label label--small text--regular">{{ world.name | escape }}</span>
+      </div>
+    </div>
+    <div class="col--span-7 flex flex--col flex--left flex--center-y gap--xsmall pl--1">
+      <span class="label label--small text--bold">{{ world.headline | escape }}</span>
+      {% if world.source_note != blank %}<span class="label label--small text--regular">{{ world.source_note | escape }}</span>{% endif %}
+    </div>
+  </div>
+{% endif %}
+</div>
+{% render "pto_footer" %}
+{% endtemplate %}
+
+<script>
+(function () {
+  function alignOrientation() {
+    var screen = document.querySelector('.screen--lg');
+    if (!screen || screen.classList.contains('screen--portrait')) return;
+    var rect = screen.getBoundingClientRect();
+    var view = document.querySelector('[data-pto-view]');
+    var shape = view ? view.getAttribute('data-pto-view') : 'full';
+    var width = rect.width * (shape === 'half_vertical' ? 2 : 1);
+    var height = rect.height * (shape === 'half_horizontal' ? 2 : 1);
+    if (height > width) screen.classList.add('screen--portrait');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', alignOrientation);
+  else alignOrientation();
+})();
+</script>

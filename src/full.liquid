@@ -1,0 +1,19 @@
+{% assign pto_long_actions = 0 %}{% for card in tickets limit: 5 %}{% assign pto_action_size = card.request_label.size | plus: card.break_label.size %}{% if pto_action_size > 40 %}{% assign pto_long_actions = pto_long_actions | plus: 1 %}{% endif %}{% endfor %}
+{% assign pto_dense_tickets = false %}{% if pto_long_actions > 2 %}{% assign pto_dense_tickets = true %}{% endif %}
+<div class="layout layout--col layout--top md:hidden lg:flex lg:portrait:hidden gap--medium px--4 py--2">
+{% if status == 'error' %}{% render "pto_error", hero: hero %}{% else %}
+  <div class="grid grid--cols-12 gap--large w--full grow">
+    <div class="col--span-5">{% render "pto_hero", hero: hero, profile: "full", show_calendar: true , scope: "full-1" %}</div>
+    <div class="col--span-7">{% render "pto_tickets", tickets: tickets, profile: "full", distributed: true, status: status , scope: "full-2" %}</div>
+  </div>
+  {% render "pto_world", world: world, large: true %}
+{% endif %}
+</div>
+<div class="layout layout--col layout--top md:hidden lg:portrait:flex gap--medium px--4 py--2">
+{% if status == 'error' %}{% render "pto_error", hero: hero %}{% else %}
+  <div class="w--full grow">{% render "pto_hero", hero: hero, profile: "full_portrait", side_countdown: true, show_calendar: true, compact_calendar: pto_dense_tickets , scope: "full-3" %}</div>
+  <div class="w--full no-shrink">{% render "pto_tickets", tickets: tickets, profile: "full", status: status , scope: "full-4" %}</div>
+  {% render "pto_world", world: world, large: true %}
+{% endif %}
+</div>
+{% render "pto_og_full", hero: hero, tickets: tickets, world: world, calendar: calendar, status: status %}
