@@ -90,14 +90,14 @@
     <div class="{% unless stacked %}{% if compact %}col--span-7{% else %}col--span-5 lg:portrait:col--span-7{% endif %}{% endunless %} flex flex--row flex--left flex--center-y gap--small">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="{% if large %}lg:w--20 lg:h--20{% elsif slim %}w--6 h--6{% elsif compact %}w--8 h--8 lg:w--12 lg:h--12{% endif %} no-shrink"><circle cx="20" cy="20" r="18.5" fill="white" stroke="black" stroke-width="1.2"/><path d="m9 6 6-3 4 2 1 4-5 2-2 5-4 1-1 5-4-5 1-6Zm6 14 6 1 4 5-3 3-2 7-4-4-2-6Zm10-16 6 4 2 4-5 1-2 4 5 3 5-1 2 7-5 4-5-3-2-5-4-1 1-5-3-3 2-4Z" fill="black"/></svg>
       <div class="flex flex--col flex--left gap--none grow">
-        <span class="label label--small {% if compact %}md:hidden lg:block{% endif %} {% if large %}lg:label--base{% endif %}">SOMEWHERE, IT'S A HOLIDAY.</span>
-        <span class="label {% if compact %}label--small lg:label--base{% endif %} {% if large %}lg:label--large{% endif %} text--bold">{{ world.location_label | escape }}</span>
-        <span class="label label--small {% if large %}lg:label--base{% endif %} text--regular">{{ world.name | escape }}</span>
+        <span class="label label--small {% if compact %}md:hidden lg:block{% endif %} {% if large %}lg:label--base{% endif %} text-stroke text-stroke--white">SOMEWHERE, IT'S A HOLIDAY.</span>
+        <span class="label {% if compact %}label--small lg:label--base{% endif %} {% if large %}lg:label--large{% endif %} text--bold text-stroke text-stroke--white">{{ world.location_label | escape }}</span>
+        <span class="label label--small {% if large %}lg:label--base{% endif %} text--regular text-stroke text-stroke--white">{{ world.name | escape }}</span>
       </div>
     </div>
     <div class="{% unless stacked %}{% if compact %}col--span-5{% else %}col--span-7 lg:portrait:col--span-5{% endif %}{% endunless %} flex flex--col flex--left flex--center-y gap--none">
-      <span class="label label--small {% if large %}lg:label--base{% endif %} text--bold">{{ world.headline | escape }}</span>
-      {% if world.source_note != blank %}<span class="label label--small text--regular">{{ world.source_note | escape }}</span>{% endif %}
+      <span class="label label--small {% if large %}lg:label--base{% endif %} text--bold text-stroke text-stroke--white">{{ world.headline | escape }}</span>
+      {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %}
     </div>
   </div>
   {% endif %}
@@ -396,14 +396,14 @@
     <div class="col--span-5 flex flex--row flex--left flex--center-y gap--small">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="no-shrink"><circle cx="20" cy="20" r="18.5" fill="white" stroke="black" stroke-width="1.2"/><path d="m9 6 6-3 4 2 1 4-5 2-2 5-4 1-1 5-4-5 1-6Zm6 14 6 1 4 5-3 3-2 7-4-4-2-6Zm10-16 6 4 2 4-5 1-2 4 5 3 5-1 2 7-5 4-5-3-2-5-4-1 1-5-3-3 2-4Z" fill="black"/></svg>
       <div class="flex flex--col flex--left gap--none">
-        <span class="label label--small">SOMEWHERE, IT'S A HOLIDAY.</span>
-        <span class="label {% if world.location_label.size > 32 %}label--small{% endif %} text--bold">{{ world.location_label | escape }}</span>
-        <span class="label label--small text--regular">{{ world.name | escape }}</span>
+        <span class="label label--small text-stroke text-stroke--white">SOMEWHERE, IT'S A HOLIDAY.</span>
+        <span class="label {% if world.location_label.size > 32 %}label--small{% endif %} text--bold text-stroke text-stroke--white">{{ world.location_label | escape }}</span>
+        <span class="label label--small text--regular text-stroke text-stroke--white">{{ world.name | escape }}</span>
       </div>
     </div>
     <div class="col--span-7 flex flex--col flex--left flex--center-y gap--xsmall pl--1">
-      <span class="label label--small text--bold">{{ world.headline | escape }}</span>
-      {% if world.source_note != blank %}<span class="label label--small text--regular">{{ world.source_note | escape }}</span>{% endif %}
+      <span class="label label--small text--bold text-stroke text-stroke--white">{{ world.headline | escape }}</span>
+      {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %}
     </div>
   </div>
 {% endif %}
