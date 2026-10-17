@@ -1,0 +1,257 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+framework_version: 3.4.0
+serverless_language: python
+refresh_interval_floor: '360'
+polling_url: "{% assign calendar_code = holiday_calendar | default: 'cz' | split: '-' | first | upcase %}\r\n{% assign this_year = 'now' | date: '%Y' | plus: 0 %}\r\n{% assign month = 'now' | date: '%m' | plus: 0 %}\r\nhttps://nagerholidays.com/api/v4/Holidays/{{ calendar_code }}/{{ this_year }}\r\nhttps://nagerholidays.com/api/v4/Holidays/{{ calendar_code }}/{{ this_year | plus: 1 }}\r\n{% if month == 1 %}\r\nhttps://nagerholidays.com/api/v4/Holidays/{{ calendar_code }}/{{ this_year | minus: 1 }}\r\n{% endif %}\r\n{% if month == 12 %}\r\nhttps://nagerholidays.com/api/v4/Holidays/{{ calendar_code }}/{{ this_year | plus: 2 }}\r\n{% endif %}\r\n{% if calendar_code == 'GB' %}\r\nhttps://www.gov.uk/bank-holidays.json\r\n{% endif %}\r\nhttps://pto-world-data.slowtech.workers.dev/v1/world\r\n"
+polling_headers: ''
+polling_body: ''
+id: 510395
+oauth_enabled: 'false'
+oauth_pkce_enabled: 'no'
+custom_fields:
+- keyname: doesnt_matter
+  name: About This Plugin
+  field_type: author_bio
+  category: calendar,productivity
+  description: A public holiday on Thursday is nice. Take Friday off, and it’s a four-day weekend. Holidays, Multiplied keeps track of upcoming opportunities for longer breaks, so you always know which days are worth taking off.
+  github_url: https://github.com/martin2097
+  learn_more_url: https://www.rapavy.cz/
+  email_address: rapavy.mato@gmail.com
+- keyname: holiday_calendar
+  field_type: select
+  name: Country or region
+  description: Choose the country or region whose public holidays you follow. Suggestions assume you work Monday–Friday with weekends off. Local and workplace holidays may differ.
+  default: us-federal
+  options:
+  - Albania: al
+  - Algeria: dz
+  - Andorra: ad
+  - Angola: ao
+  - Anguilla: ai
+  - Antigua and Barbuda: ag
+  - Argentina: ar
+  - Armenia: am
+  - Aruba: aw
+  - Australia — National holidays: au
+  - Austria — National holidays: at
+  - Bahamas: bs
+  - Bahrain: bh
+  - Bangladesh: bd
+  - Barbados: bb
+  - Belarus: by
+  - Belgium: be
+  - Belize: bz
+  - Benin: bj
+  - Bermuda: bm
+  - Bolivia: bo
+  - Bosnia and Herzegovina — National holidays: ba
+  - Botswana: bw
+  - Brazil — National holidays: br
+  - British Virgin Islands: vg
+  - Bulgaria: bg
+  - Burkina Faso: bf
+  - Burundi: bi
+  - Cambodia: kh
+  - Cameroon: cm
+  - Canada — Alberta: ca-ab
+  - Canada — British Columbia: ca-bc
+  - Canada — National holidays: ca
+  - Canada — Ontario: ca-on
+  - Cape Verde: cv
+  - Caribbean Netherlands: bq
+  - Cayman Islands: ky
+  - Central African Republic: cf
+  - Chad: td
+  - Chile: cl
+  - China: cn
+  - Christmas Island: cx
+  - Cocos (Keeling) Islands: cc
+  - Colombia: co
+  - Comoros: km
+  - Congo: cg
+  - Cook Islands: ck
+  - Costa Rica: cr
+  - Croatia: hr
+  - Cuba: cu
+  - Curaçao: cw
+  - Cyprus: cy
+  - Czechia: cz
+  - Denmark: dk
+  - Djibouti: dj
+  - Dominica: dm
+  - Dominican Republic: do
+  - DR Congo: cd
+  - Ecuador: ec
+  - Egypt: eg
+  - El Salvador: sv
+  - Equatorial Guinea: gq
+  - Eritrea: er
+  - Estonia: ee
+  - Eswatini: sz
+  - Ethiopia: et
+  - Falkland Islands: fk
+  - Faroe Islands: fo
+  - Finland: fi
+  - France — National holidays: fr
+  - French Guiana: gf
+  - French Polynesia: pf
+  - Gabon: ga
+  - Gambia: gm
+  - Georgia: ge
+  - Germany — Baden-Württemberg: de-bw
+  - Germany — Bavaria: de-by
+  - Germany — Berlin: de-be
+  - Germany — Brandenburg: de-bb
+  - Germany — Bremen: de-hb
+  - Germany — Hamburg: de-hh
+  - Germany — Hesse: de-he
+  - Germany — Lower Saxony: de-ni
+  - Germany — Mecklenburg-Vorpommern: de-mv
+  - Germany — North Rhine-Westphalia: de-nw
+  - Germany — Rhineland-Palatinate: de-rp
+  - Germany — Saarland: de-sl
+  - Germany — Saxony: de-sn
+  - Germany — Saxony-Anhalt: de-st
+  - Germany — Schleswig-Holstein: de-sh
+  - Germany — Thuringia: de-th
+  - Ghana: gh
+  - Gibraltar: gi
+  - Greece: gr
+  - Greenland: gl
+  - Grenada: gd
+  - Guadeloupe: gp
+  - Guatemala: gt
+  - Guernsey: gg
+  - Guinea: gn
+  - Guinea-Bissau: gw
+  - Guyana: gy
+  - Haiti: ht
+  - Honduras: hn
+  - Hong Kong: hk
+  - Hungary: hu
+  - Iceland: is
+  - Indonesia: id
+  - Iraq: iq
+  - Ireland: ie
+  - Isle of Man: im
+  - Italy — National holidays: it
+  - Ivory Coast: ci
+  - Jamaica: jm
+  - Japan: jp
+  - Jersey: je
+  - Kazakhstan: kz
+  - Kenya: ke
+  - Kiribati: ki
+  - Latvia: lv
+  - Lesotho: ls
+  - Liberia: lr
+  - Libya: ly
+  - Liechtenstein: li
+  - Lithuania: lt
+  - Luxembourg: lu
+  - Madagascar: mg
+  - Malawi: mw
+  - Mali: ml
+  - Malta: mt
+  - Marshall Islands: mh
+  - Martinique: mq
+  - Mauritania: mr
+  - Mexico: mx
+  - Micronesia: fm
+  - Moldova: md
+  - Monaco: mc
+  - Mongolia: mn
+  - Montenegro: me
+  - Montserrat: ms
+  - Morocco: ma
+  - Mozambique: mz
+  - Namibia: na
+  - Nauru: nr
+  - Netherlands: nl
+  - New Caledonia: nc
+  - New Zealand — National holidays: nz
+  - Nicaragua: ni
+  - Niger: ne
+  - Nigeria: ng
+  - Niue: nu
+  - Norfolk Island: nf
+  - North Macedonia: mk
+  - Northern Mariana Islands: mp
+  - Norway: 'no'
+  - Palau: pw
+  - Panama: pa
+  - Papua New Guinea: pg
+  - Paraguay: py
+  - Peru: pe
+  - Philippines: ph
+  - Pitcairn Islands: pn
+  - Poland: pl
+  - Portugal — National holidays: pt
+  - Puerto Rico: pr
+  - Romania: ro
+  - Russia: ru
+  - Rwanda: rw
+  - Saint Barthélemy: bl
+  - Saint Helena, Ascension and Tristan da Cunha: sh
+  - Saint Kitts and Nevis: kn
+  - Saint Lucia: lc
+  - Saint Martin: mf
+  - Saint Pierre and Miquelon: pm
+  - Saint Vincent and the Grenadines: vc
+  - Samoa: ws
+  - San Marino: sm
+  - Senegal: sn
+  - Serbia: rs
+  - Seychelles: sc
+  - Sierra Leone: sl
+  - Singapore: sg
+  - Sint Maarten: sx
+  - Slovakia: sk
+  - Slovenia: si
+  - Solomon Islands: sb
+  - Somalia: so
+  - South Africa: za
+  - South Korea: kr
+  - South Sudan: ss
+  - Spain — National holidays: es
+  - Sudan: sd
+  - Suriname: sr
+  - Svalbard and Jan Mayen: sj
+  - Sweden: se
+  - Switzerland — National holidays: ch
+  - Syria: sy
+  - São Tomé and Príncipe: st
+  - Tanzania: tz
+  - Togo: tg
+  - Tokelau: tk
+  - Tonga: to
+  - Trinidad and Tobago: tt
+  - Tunisia: tn
+  - Turks and Caicos Islands: tc
+  - Tuvalu: tv
+  - Türkiye: tr
+  - Uganda: ug
+  - UK — England & Wales: gb-eng-wls
+  - UK — Northern Ireland: gb-nir
+  - UK — Scotland: gb-sct
+  - Ukraine: ua
+  - United States Virgin Islands: vi
+  - Uruguay: uy
+  - USA — Federal holidays: us-federal
+  - Vanuatu: vu
+  - Vatican City: va
+  - Venezuela: ve
+  - Vietnam: vn
+  - Wallis and Futuna: wf
+  - Yemen: ye
+  - Zambia: zm
+  - Zimbabwe: zw
+  - Åland Islands: ax
+name: 'Holidays, Multiplied: Which day should I take off?'
+description: Your calendar for longer weekends
+refresh_interval: 1440
