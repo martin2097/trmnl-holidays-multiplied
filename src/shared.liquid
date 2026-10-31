@@ -97,7 +97,7 @@
     </div>
     {% unless identity_only %}<div class="{% unless stacked %}{% if compact %}col--span-5{% else %}col--span-7 lg:portrait:col--span-5{% endif %}{% endunless %} flex flex--col flex--left flex--center-y gap--none">
       <span class="label label--small {% if large %}lg:label--base{% endif %} text--bold text-stroke text-stroke--white">{{ world.headline | escape }}</span>
-      {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %}
+      {% comment %} {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %} {% endcomment %}
     </div>{% endunless %}
   </div>
   {% endif %}
@@ -403,7 +403,7 @@
     </div>
     <div class="col--span-7 flex flex--col flex--left flex--center-y gap--xsmall pl--1">
       <span class="label label--small text--bold text-stroke text-stroke--white">{{ world.headline | escape }}</span>
-      {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %}
+      {% comment %} {% if world.source_note != blank %}<span class="label label--small text--regular text-stroke text-stroke--white">{{ world.source_note | escape }}</span>{% endif %} {% endcomment %}
     </div>
   </div>
 {% endif %}
