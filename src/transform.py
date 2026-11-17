@@ -724,11 +724,17 @@ def format_card(candidate, today):
             "days_until_start": days_until, "countdown_label": break_countdown(days_until)}
 
 
+def candidate_has_unpassed_holiday(candidate, today):
+    return any(max(item["nominal"], item["effective"]) >= today
+               for day in candidate["days"] for item in day["events"])
+
+
 def ticket_candidate(candidate, today, horizon):
-    # A free break already underway can still contain today's holiday.
+    # Keep a plan visible while any holiday it covers is current or upcoming,
+    # even when its break or PTO dates have already started.
     return (candidate["start"] < horizon and candidate["end"] >= today
             and candidate["contains_rest"] and candidate["total"] > 2
-            and (not candidate["leave"] or candidate["start"] >= today and candidate["leave"][0] > today))
+            and candidate_has_unpassed_holiday(candidate, today))
 
 
 def ticket_from_bridge(candidate, events, today, combined=False):
@@ -889,8 +895,7 @@ def choose_hero(events, candidates, today):
         hero["observed_label"] = "Day off: " + " & ".join(short_date(item["effective"], weekday=True) for item in observed)
     related = [candidate for candidate in candidates if candidate["contains_rest"]
                and effective_dates.intersection(candidate["relief"])
-               and candidate["end"] >= today
-               and (not candidate["leave"] or candidate["leave"][0] > today and candidate["start"] >= today)]
+               and candidate["end"] >= today]
     chosen = min(related, key=lambda item: (item["cost"],) + candidate_rank(item)) if related else None
     if chosen:
         hero.update({key: value for key, value in format_card(chosen, today).items()
