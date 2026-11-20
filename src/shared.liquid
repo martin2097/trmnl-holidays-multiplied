@@ -197,7 +197,7 @@
             {% if hero.headline.size <= 25 and count <= 5 %}{% assign canvas_width = 380 %}{% endif %}
             {% if hero.observed_label != blank and count <= 5 %}{% assign canvas_width = 420 %}{% endif %}
             {% if count > 2 %}{% assign tile = 56 %}{% assign gap = 16 %}{% assign numeral = 37 %}{% assign numeral_offset = 11 %}{% endif %}
-            {% if count > 4 %}{% assign tile = 48 %}{% assign gap = 10 %}{% assign numeral = 32 %}{% assign numeral_offset = 9 %}{% assign caption_size = 13 %}{% endif %}
+            {% if count > 4 %}{% assign tile = 48 %}{% assign gap = 10 %}{% assign numeral = 32 %}{% assign numeral_offset = 9 %}{% assign caption_size = 12 %}{% endif %}
             {% if count > 5 %}
               {% assign tile = 44 %}{% assign gap = 14 %}{% assign numeral = 29 %}{% assign numeral_offset = 9 %}
               {% assign weekday_size = 14 %}{% assign caption_size = 11 %}{% assign result_size = 14 %}
